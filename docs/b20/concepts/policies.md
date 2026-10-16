@@ -113,6 +113,8 @@ A composite starts from policies that already exist. Call `createCompositePolicy
 
 Both paths emit `PolicyCreated` and `PolicyAdminUpdated(policyId, address(0), admin)`. `policyAdmin(policyId)` then returns that admin.
 
+Treat a policy ID as an opaque `uint64` everywhere, including off-chain. Assigned IDs use the high bits of the `uint64`, so they are larger than JavaScript's `Number.MAX_SAFE_INTEGER` (2^53 − 1). Keep them as `bigint` in TypeScript and as strings in JSON. Converting one to a `Number` silently rounds it to a different ID.
+
 ```mermaid
 sequenceDiagram
     participant Creator

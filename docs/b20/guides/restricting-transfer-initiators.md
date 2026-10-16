@@ -41,6 +41,12 @@ Transfer has three independent policy scopes. All three are enforced inside the 
 
 `transferFrom` still requires the caller to hold an ERC-20 allowance from `from`. The executor policy and the allowance answer different questions: the allowance says "this caller may spend up to this amount," and the executor policy says "this caller may initiate a transfer at all." A transfer agent needs both — an allowance from each holder it moves tokens for, and a place on the executor allowlist. Granting one does not grant the other.
 
+### Network availability
+
+The behavior in this guide — the executor check on a holder's own `transfer` and self-`transferFrom` (`msg.sender == from`) — takes effect when the **Denim** hardfork activates. Denim is not yet live (see [the changelog index](../../../changelog/README.md)).
+
+On a network where Denim has not activated, `TRANSFER_EXECUTOR_POLICY` is checked only on delegated `transferFrom` (`msg.sender != from`). A holder who is not on the executor allowlist can still move their own tokens by calling `transfer` or `transferFrom(self, ...)` directly, and step 5 below does not revert. If the control matters for your token, confirm Denim is active on your target network before relying on it. See [Transfer Executor Policy Enforcement](../../../changelog/03_Denim_B20_transfer_executor_enforcement.md).
+
 ## Steps
 
 Configure the executor allowlist, then confirm both the denied and allowed paths.
@@ -96,7 +102,7 @@ vm.prank(alice);
 token.transfer(bob, amount); // reverts PolicyForbids(TRANSFER_EXECUTOR_POLICY, executorId)
 ```
 
-Alice holds a balance and, after step 4, an allowance for the transfer agent — but she is not on the executor allowlist, so the call reverts before balance is checked.
+Alice holds a balance and, after step 4, an allowance for the transfer agent — but she is not on the executor allowlist, so the call reverts before balance is checked. This requires Denim; see [Network availability](#network-availability).
 
 ### 6. Confirm the transfer agent's path succeeds
 
